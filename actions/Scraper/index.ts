@@ -1,3 +1,4 @@
+import { extractPrice } from "@/lib/utils";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
@@ -5,8 +6,6 @@ export async function scrapeAmazonProduct(url: string) {
   if (!url) return;
 
   //BrightData proxy configuration
-
-  //   curl -i --proxy brd.superproxy.io:22225 --proxy-user brd-customer-hl_b7352fc5-zone-keepaneye:efssvvk56fav -k "https://geo.brdtest.com/welcome.txt"
 
   const userName = String(process.env.BRIGHT_DATA_USERNAME);
   const password = String(process.env.BRIGHT_DATA_PASSWORD);
@@ -25,6 +24,12 @@ export async function scrapeAmazonProduct(url: string) {
 
   try {
     const response = await axios.get(url, options);
+    const $ = cheerio.load(response.data);
+
+    const title = $("#productTitle").text().trim();
+    const currentPrice = $(".a-price-whole").text().trim();
+
+    console.log({ currentPrice });
   } catch (error: any) {
     throw new Error(`Failed to scrape product from Amazon ${error.message}`);
   }
